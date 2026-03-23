@@ -165,10 +165,15 @@ Nothing gets added to the spec until it's been tested. The prompt is the artifac
     └── v4-features.md         # Planned enhancements
 ```
 
+## Related
+
+- **[PitziLabs/setup-crostini-lab](https://github.com/PitziLabs/setup-crostini-lab)** — The Chromebook dev environment where this prompt was developed
+- **[PitziLabs/aws-lab-infra](https://github.com/PitziLabs/aws-lab-infra)** — Terraform AWS infrastructure — same portfolio, different domain
+
 ## License
 
-TBD
+MIT License — see [LICENSE](LICENSE).
 
-## Author
+## Credits
 
-Chris — infrastructure professional turned prompt engineer. 30 years of production operations applied to making AI do useful, verifiable, adversarial work.
+Built by Chris Pitzi — infrastructure professional turned prompt engineer. 30 years of production operations applied to making AI do useful, verifiable, adversarial work. Developed with [Claude](https://claude.ai) (Anthropic).
