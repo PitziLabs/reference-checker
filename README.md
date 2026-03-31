@@ -131,7 +131,7 @@ Pipeline decomposition across model tiers for cost optimization at editorial sca
 
 ## Project Context
 
-This project originated from a real editorial workflow need. My sister Jennifer is a managing editor at [AWHONN](https://www.awhonn.org/) (Association of Women's Health, Obstetric and Neonatal Nurses), which publishes *JOGNN*, *MCN*, and *Nursing for Women's Health*. These journals face the same reference-integrity threats as all academic publishing, amplified by the rapid growth of AI-generated content and paper mill sophistication.
+This project originated from a real editorial workflow need. I spoke with a managing editor at a few leading nursing journals. They were clear: these journals face the same reference-integrity threats as all academic publishing, amplified by the rapid growth of AI-generated content and paper mill sophistication.
 
 The tool is designed to fit into a managing editor's actual workflow: receive a manuscript, run the reference list through the auditor, get a report that supports an editorial decision. Not a research tool — an editorial operations tool.
 
