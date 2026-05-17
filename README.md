@@ -2,6 +2,8 @@
 
 A prompt-engineered deep-scan verification system for academic reference lists. Built for managing editors in nursing and health sciences publishing who need to catch fabricated, manipulated, and suspicious citations before they reach print.
 
+**Authorship:** The prompts, documentation, and test sets in this repo are co-written with [Claude](https://claude.ai) (Anthropic). I direct the work and review the output; Claude writes the prompts. I'm an infrastructure operator, not a software engineer — please don't read this repo as a portfolio of coding ability.
+
 ## The Problem
 
 Academic reference lists are a trust surface. Paper mills, AI-generated citations, and increasingly sophisticated metadata manipulation mean that a reference can *look* perfectly formatted while being completely fabricated — or worse, a composite of real elements assembled to resist casual verification.
@@ -171,4 +173,4 @@ MIT License — see [LICENSE](LICENSE).
 
 ## Credits
 
-Built by Chris Pitzi — infrastructure professional turned prompt engineer. 30 years of production operations applied to making AI do useful, verifiable, adversarial work. Developed with [Claude](https://claude.ai) (Anthropic).
+See the Authorship note at the top — the prompts in this repo are co-written with [Claude](https://claude.ai) (Anthropic). Chris Pitzi directs the work, brings the editorial and ops context, and reviews the output; Claude writes the prompt text.
