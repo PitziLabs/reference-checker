@@ -1,0 +1,388 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Forensic Reference-Integrity Audit — Amarnath &amp; Sharma (IJNTR 2026)</title>
+<style>
+  :root{
+    --bg:#0f1115; --panel:#171a21; --panel2:#1d212b; --ink:#e7eaf0; --muted:#9aa3b2;
+    --line:#2a2f3a; --h:#e5484d; --e:#f76808; --m:#f5d90a; --d:#30a46c; --accent:#4f9cf9;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--bg);color:var(--ink);
+       font:15px/1.55 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;}
+  .wrap{max-width:1040px;margin:0 auto;padding:32px 24px 80px;}
+  header.title{border-bottom:1px solid var(--line);padding-bottom:20px;margin-bottom:28px;}
+  header.title h1{font-size:24px;margin:0 0 6px;letter-spacing:.2px;}
+  header.title .sub{color:var(--muted);font-size:14px;}
+  .pill{display:inline-block;font-size:11px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;
+        padding:3px 9px;border-radius:999px;border:1px solid var(--line);color:var(--muted);margin-right:6px;}
+  .notice{background:#1a1408;border:1px solid #5a4408;border-radius:10px;padding:12px 16px;
+          color:#f0d79a;font-size:13px;margin:18px 0 0;}
+  h2.section{font-size:13px;letter-spacing:.12em;text-transform:uppercase;color:var(--accent);
+             border-top:1px solid var(--line);padding-top:26px;margin:42px 0 16px;}
+  .dash{display:grid;grid-template-columns:300px 1fr;gap:24px;align-items:center;}
+  @media(max-width:760px){.dash{grid-template-columns:1fr}}
+  .gauge{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:16px;text-align:center;}
+  .gauge .score{font-size:46px;font-weight:800;line-height:1;margin-top:-6px;color:var(--h);}
+  .gauge .zone{font-size:12px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--h);margin-top:4px;}
+  .gauge .scale{font-size:11px;color:var(--muted);margin-top:8px;}
+  .gauge .raw{font-size:11px;color:var(--muted);margin-top:4px;}
+  .cards{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;}
+  @media(max-width:760px){.cards{grid-template-columns:repeat(2,1fr)}}
+  .card{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:14px;}
+  .card .n{font-size:30px;font-weight:800;line-height:1;}
+  .card .l{font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.06em;margin-top:6px;}
+  .card.h .n{color:var(--h)} .card.e .n{color:var(--e)} .card.d .n{color:var(--d)}
+  .heat{display:flex;gap:6px;flex-wrap:wrap;margin-top:18px;}
+  .heat .cell{width:44px;height:44px;border-radius:8px;display:flex;align-items:center;justify-content:center;
+              font-weight:800;font-size:13px;color:#0b0d10;position:relative;}
+  .heat .cell small{position:absolute;bottom:3px;right:5px;font-size:9px;font-weight:700;opacity:.75;}
+  .bg-h{background:var(--h)} .bg-e{background:var(--e)} .bg-m{background:var(--m)} .bg-d{background:var(--d)}
+  .legend{font-size:12px;color:var(--muted);margin-top:10px;}
+  .legend span{display:inline-flex;align-items:center;margin-right:14px;}
+  .legend i{width:11px;height:11px;border-radius:3px;display:inline-block;margin-right:5px;}
+  table{width:100%;border-collapse:collapse;font-size:13.5px;}
+  th,td{text-align:left;padding:9px 9px;border-bottom:1px solid var(--line);vertical-align:top;}
+  th{font-size:11px;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);font-weight:700;}
+  tr.finding td{border-bottom:none;padding-top:0;}
+  .finding .box{background:var(--panel2);border-left:3px solid var(--h);border-radius:0 8px 8px 0;
+                padding:9px 12px;font-size:13px;color:#d3dae6;margin:0 0 6px;}
+  .finding .box.e{border-left-color:var(--e);}
+  .badge{display:inline-block;font-size:11px;font-weight:800;letter-spacing:.04em;padding:3px 9px;border-radius:6px;color:#0b0d10;}
+  .b-h{background:var(--h)} .b-e{background:var(--e);color:#fff} .b-m{background:var(--m)} .b-d{background:var(--d);color:#fff}
+  .heur{font-size:12px;color:#e7c08a;}
+  .src{font-size:12px;color:var(--muted);}
+  .rank{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:14px 18px;margin:0 0 12px;}
+  .rank h3{margin:0 0 2px;font-size:14.5px;}
+  .rank .tag{font-size:11px;font-weight:700;letter-spacing:.05em;}
+  .rank p{margin:6px 0;font-size:13px;color:#d3dae6;}
+  .rank .action{font-size:12.5px;color:var(--muted);font-style:italic;}
+  .apa{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:16px 22px;}
+  .apa ol{margin:0;padding-left:24px;} .apa li{margin:0 0 12px;font-size:13px;}
+  .apa .flag{color:var(--h);font-weight:700;font-size:12px;}
+  .apa em{color:#cdd5e3;}
+  .prisma{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:20px;text-align:center;}
+  .pr-box{display:inline-block;background:var(--panel2);border:1px solid var(--line);border-radius:8px;
+          padding:8px 16px;font-size:13px;margin:4px;}
+  .pr-arrow{color:var(--muted);font-size:18px;margin:2px 0;}
+  .pr-split{display:flex;gap:24px;justify-content:center;flex-wrap:wrap;}
+  .pr-tiers .t{display:inline-block;border-radius:8px;padding:8px 14px;font-weight:800;margin:4px;color:#0b0d10;}
+  .appendix h3{font-size:14px;margin:20px 0 8px;color:var(--ink);}
+  .appendix p,.appendix li{font-size:13.5px;color:#cfd6e2;}
+  .cope{background:#1a0d0d;border:1px solid #5a1a1c;border-radius:10px;padding:12px 16px;color:#f3b6b8;font-size:13px;}
+  code{background:#0b0d10;border:1px solid var(--line);border-radius:5px;padding:1px 5px;font-size:12.5px;}
+  footer{color:var(--muted);font-size:12px;border-top:1px solid var(--line);margin-top:48px;padding-top:18px;}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header class="title">
+    <div><span class="pill">Forensic Audit · v4</span><span class="pill">Mode A · Reference list only</span></div>
+    <h1>Reference-Integrity Audit</h1>
+    <div class="sub">
+      <strong>Manuscript:</strong> “Effectiveness of Kinesiology Taping on Pain, Range of Motion and Functional
+      Performance in Athletes with Acute Ankle Sprain” — Amarnath S. &amp; K. Sharma.<br>
+      <strong>Source:</strong> International Journal of New Technology and Research (IJNTR),
+      ISSN 2454-4116, Vol-12, Issue-2, February 2026, pp. 01–04.<br>
+      <strong>Audit date:</strong> 15 June 2026 &nbsp;·&nbsp; <strong>References audited:</strong> 20
+    </div>
+    <div class="notice">
+      <strong>Mode A — reference list only.</strong> Per instruction, the manuscript body was ignored entirely;
+      only the 20-entry reference list was audited. Heuristic 8 (sneaked / uncited references) requires the
+      manuscript body and is therefore <em>not</em> applied in this run. Privacy notice was issued once at the
+      start of this session.
+    </div>
+  </header>
+
+  <!-- ====================== SECTION 1 ====================== -->
+  <h2 class="section">1 · Executive Dashboard</h2>
+  <div class="dash">
+    <div class="gauge">
+      <svg viewBox="0 0 300 175" width="100%" height="150" role="img" aria-label="Confidence gauge: floored to 0 of 100">
+        <path d="M30 150 A120 120 0 0 1 150 30"  fill="none" stroke="#e5484d" stroke-width="22"/>
+        <path d="M150 30 A120 120 0 0 1 220.5 52.92" fill="none" stroke="#f76808" stroke-width="22"/>
+        <path d="M220.5 52.92 A120 120 0 0 1 256.9 95.52" fill="none" stroke="#f5d90a" stroke-width="22"/>
+        <path d="M256.9 95.52 A120 120 0 0 1 270 150" fill="none" stroke="#30a46c" stroke-width="22"/>
+        <line x1="150" y1="150" x2="50" y2="150" stroke="#e7eaf0" stroke-width="4" stroke-linecap="round"/>
+        <circle cx="150" cy="150" r="8" fill="#e7eaf0"/>
+        <text x="30"  y="170" fill="#9aa3b2" font-size="11">0</text>
+        <text x="262" y="170" fill="#9aa3b2" font-size="11">100</text>
+      </svg>
+      <div class="score">0</div>
+      <div class="zone">Red · Systemic concern</div>
+      <div class="raw">Raw computed score: −25 (floored to 0)</div>
+      <div class="scale">85–100 clear · 70–84 review · 50–69 escalate · 0–49 systemic</div>
+    </div>
+    <div>
+      <div class="cards">
+        <div class="card"><div class="n">20</div><div class="l">Audited</div></div>
+        <div class="card h"><div class="n">7</div><div class="l">High risk</div></div>
+        <div class="card e"><div class="n">1</div><div class="l">Elevated</div></div>
+        <div class="card d"><div class="n">12</div><div class="l">Defensible</div></div>
+      </div>
+      <div class="heat">
+        <div class="cell bg-h">1<small>H</small></div><div class="cell bg-h">2<small>H</small></div>
+        <div class="cell bg-h">3<small>H</small></div><div class="cell bg-h">4<small>H</small></div>
+        <div class="cell bg-h">5<small>H</small></div><div class="cell bg-e">6<small>E</small></div>
+        <div class="cell bg-d">7<small>D</small></div><div class="cell bg-d">8<small>D</small></div>
+        <div class="cell bg-d">9<small>D</small></div><div class="cell bg-d">10<small>D</small></div>
+        <div class="cell bg-d">11<small>D</small></div><div class="cell bg-d">12<small>D</small></div>
+        <div class="cell bg-h">13<small>H</small></div><div class="cell bg-d">14<small>D</small></div>
+        <div class="cell bg-h">15<small>H</small></div><div class="cell bg-d">16<small>D</small></div>
+        <div class="cell bg-d">17<small>D</small></div><div class="cell bg-d">18<small>D</small></div>
+        <div class="cell bg-d">19<small>D</small></div><div class="cell bg-d">20<small>D</small></div>
+      </div>
+      <div class="legend">
+        <span><i class="bg-h"></i>High</span><span><i class="bg-e"></i>Elevated</span>
+        <span><i class="bg-m"></i>Moderate</span><span><i class="bg-d"></i>Defensible</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- ====================== SECTION 2 ====================== -->
+  <h2 class="section">2 · Forensic Audit Table</h2>
+  <table>
+    <thead>
+      <tr><th style="width:24px">#</th><th>Reference (truncated)</th><th>Heuristics triggered</th>
+          <th>Verification sources</th><th style="width:84px">Risk tier</th></tr>
+    </thead>
+    <tbody>
+      <tr><td>1</td><td>Aguilar-Ferrándiz, Castro-Sánchez, et al. — “Effects of kinesio taping on pain, ROM… lateral ankle sprains” (JMPT, 2016)</td>
+        <td class="heur">H4: author-borrow · H7: shadow-paper</td><td class="src">Crossref, PubMed, JMPT</td>
+        <td><span class="badge b-h">High</span></td></tr>
+      <tr class="finding"><td></td><td colspan="4"><div class="box">No publication matching this title exists in
+        <em>J. Manipulative Physiol. Ther.</em> 39(8):541–550 (2016). The named authors are real KT researchers, but their
+        actual joint KT trial concerns <strong>chronic venous insufficiency in postmenopausal women</strong>
+        (<em>Clinical Rehabilitation</em>, 2014) — not lateral ankle sprains. Real authors attached to an unlocatable paper.</div></td></tr>
+
+      <tr><td>2</td><td>Ahmed, Rashid, Khan — “The impact of ankle kinesio taping on pain management…” (J. Sports Rehabilitation, 2024)</td>
+        <td class="heur">H5: double-real · H4: author-shift · H6: journal mutation</td><td class="src">Crossref, PubMed</td>
+        <td><span class="badge b-h">High</span></td></tr>
+      <tr class="finding"><td></td><td colspan="4"><div class="box">The <em>title</em> is real (PMID 38634848) — but it belongs to
+        <strong>Karakoyun ÖF et al.</strong>, published in <strong>Ulus. Travma Acil Cerrahi Derg. 2024;30(4):248–253</strong>,
+        not “Ahmed/Rashid/Khan” in “Journal of Sports Rehabilitation 33(4):112–119.” Authors, journal, volume and pages are all fabricated.</div></td></tr>
+
+      <tr><td>3</td><td>Al-Shareef, Omar, Ibrahim — “Effect of Kinesio taping on pain and functional performance in ankle sprain injury” (Phys. Ther. Rehabil., 2016)</td>
+        <td class="heur">H5: double-real · H6: journal mutation</td><td class="src">Crossref, PubMed</td>
+        <td><span class="badge b-h">High</span></td></tr>
+      <tr class="finding"><td></td><td colspan="4"><div class="box">These authors’ real 2016 paper (PMID 27392262) is
+        “Effect of Kinesio Taping on Pain and Functional Disability in <strong>Chronic Nonspecific Low Back Pain</strong>” —
+        the topic and title were mutated to “ankle sprain injury,” and the journal/volume/pages do not match any real record. Real authors, fabricated paper.</div></td></tr>
+
+      <tr><td>4</td><td>Alam, Sharma, Verma — “Effectiveness of Kinesio taping versus Mulligan’s MWM on NPRS, FAAM…” (Int. J. Health Research, 2025)</td>
+        <td class="heur">H5: double-real · H4: author-shift · H6: journal mutation</td><td class="src">Crossref, journal archive</td>
+        <td><span class="badge b-h">High</span></td></tr>
+      <tr class="finding"><td></td><td colspan="4"><div class="box">The underlying study is real —
+        <strong>Khan AQ, Mughal S, Asif T, et al.</strong>, “Effectiveness of Kinesio Taping versus Mulligan’s Mobilization with
+        Movement in Sub-acute Lateral Ankle Sprain in Footballers,” <strong>International Health Review 3(1):20–32 (2023)</strong>.
+        The citation swaps the authors, mutates the journal name to “International <em>Journal</em> of Health Research,” alters the title and reports 14(2):45–54 (2025).</div></td></tr>
+
+      <tr><td>5</td><td>Bota, Ionescu, Popescu — “The effects of Kinesio tape on acute ankle sprain: A systematic review” (Sports Medicine — Open, 2025)</td>
+        <td class="heur">H5: double-real · H4: author-shift · H6: journal mutation</td><td class="src">Crossref, PubMed</td>
+        <td><span class="badge b-h">High</span></td></tr>
+      <tr class="finding"><td></td><td colspan="4"><div class="box">The title is lifted verbatim from a real 2025 review by
+        <strong>Bocchino G, Grassa D, et al.</strong>, published in <strong>J. Clin. Med. 2025;14(5):1440</strong>. The cited
+        authors (Bota/Ionescu/Popescu) and journal (“Sports Medicine — Open 11(1):23–31”) are fabricated.</div></td></tr>
+
+      <tr><td>6</td><td>Botia Gonzalez, Coronell-Alean — “Kinesiology taping and its role in chronic ankle instability: A critical review” (J. Physiother. Phys. Rehabil., 2023)</td>
+        <td class="heur">H7: shadow-paper</td><td class="src">Crossref, PubMed, Google Scholar (search)</td>
+        <td><span class="badge b-e">Elevated</span></td></tr>
+      <tr class="finding"><td></td><td colspan="4"><div class="box e">No publication matching this title, author pair, or
+        journal could be located in any indexed source. The journal name (“Journal of Physiotherapy and Physical Rehabilitation”)
+        follows a predatory-template pattern. Shadow-paper signature; held at Elevated because, unlike R1–R5, no borrowed real source could be identified to confirm intent.</div></td></tr>
+
+      <tr><td>7</td><td>Doherty, Bleakley, Delahunt, Holden — “Treatment and prevention of acute and recurrent ankle sprain…” (BJSM, 2017)</td>
+        <td class="heur">—</td><td class="src">Crossref, BJSM</td><td><span class="badge b-d">Defensible</span></td></tr>
+      <tr><td>8</td><td>Fong, Chan, Mok, Yung, Chan — “Understanding acute ankle ligamentous sprain injury in sports” (SMARTT, 2009)</td>
+        <td class="heur">—</td><td class="src">Crossref, PubMed</td><td><span class="badge b-d">Defensible</span></td></tr>
+      <tr><td>9</td><td>Gribble, Bleakley, et al. — “Evidence review for the 2016 IAC consensus statement…” (BJSM, 2016)</td>
+        <td class="heur">—</td><td class="src">Crossref, PubMed</td><td><span class="badge b-d">Defensible</span></td></tr>
+      <tr><td>10</td><td>Halseth, McChesney, DeBeliso, Vaughn, Lien — “The effects of Kinesio taping on proprioception at the ankle” (JSSM, 2004)</td>
+        <td class="heur">—</td><td class="src">PubMed, JSSM</td><td><span class="badge b-d">Defensible</span></td></tr>
+      <tr><td>11</td><td>Kase, Wallis, Kase — <em>Clinical therapeutic applications of the Kinesio taping method</em>, 2nd ed. (2003)</td>
+        <td class="heur">—</td><td class="src">WorldCat, publisher</td><td><span class="badge b-d">Defensible</span></td></tr>
+      <tr><td>12</td><td>Kerkhoffs, van den Bekerom, et al. — “Diagnosis, treatment and prevention of ankle sprains…” (BJSM, 2012)</td>
+        <td class="heur">—</td><td class="src">Crossref, PubMed</td><td><span class="badge b-d">Defensible</span></td></tr>
+
+      <tr><td>13</td><td>Kim, Kim — “Immediate effects of ankle balance taping with Kinesiology tape… functional ankle instability” (JPTS, 2017)</td>
+        <td class="heur">H5: double-real · H4: author-shift · H6: journal mutation</td><td class="src">Crossref, PubMed</td>
+        <td><span class="badge b-h">High</span></td></tr>
+      <tr class="finding"><td></td><td colspan="4"><div class="box">The title is real (PMID 25735310) but belongs to
+        <strong>Lee B-G &amp; Lee J-H</strong>, “…” in <strong>Technology and Health Care 2015;23(3):333–341</strong> — not
+        “Kim &amp; Kim, J. Phys. Ther. Sci. 29(11):1989–1992 (2017).” Authors, journal, year, volume and pages are all fabricated.</div></td></tr>
+
+      <tr><td>14</td><td>Lim, Tay — “Kinesio taping in musculoskeletal pain and disability that lasts for more than 4 weeks…” (BJSM, 2015)</td>
+        <td class="heur">—</td><td class="src">Crossref, PubMed</td><td><span class="badge b-d">Defensible</span></td></tr>
+
+      <tr><td>15</td><td>Malik, Singh, Sharma — “Effectiveness of Kinesiology Taping on pain and functional performance in acute ankle sprain: An RCT” (Indian J. Sports Physiother., 2025)</td>
+        <td class="heur">H4: author-shift · H6: journal mutation</td><td class="src">Crossref, Google Scholar (search)</td>
+        <td><span class="badge b-h">High</span></td></tr>
+      <tr class="finding"><td></td><td colspan="4"><div class="box">This exact title is attributed elsewhere to a different
+        author set (<strong>Jadav MK, Sojitra SJ, Shah KR</strong>) appearing in a hijacked-journal listing. No record exists for
+        “Malik/Singh/Sharma” in an “Indian Journal of Sports Physiotherapy 18(1):22–30 (2025).” Authors and journal fabricated.</div></td></tr>
+
+      <tr><td>16</td><td>Martin, Irrgang, Burdett, Conti, Van Swearingen — “Evidence of validity for the Foot and Ankle Ability Measure (FAAM)” (FAI, 2005)</td>
+        <td class="heur">—</td><td class="src">Crossref, PubMed</td><td><span class="badge b-d">Defensible</span></td></tr>
+      <tr><td>17</td><td>Moore, Dalley, Agur — <em>Clinically oriented anatomy</em>, 7th ed. (2014)</td>
+        <td class="heur">—</td><td class="src">WorldCat, publisher</td><td><span class="badge b-d">Defensible</span></td></tr>
+      <tr><td>18</td><td>Parreira, Costa, et al. — “Current evidence does not support the use of Kinesio taping…” (J. Physiother., 2014)</td>
+        <td class="heur">—</td><td class="src">Crossref, PubMed</td><td><span class="badge b-d">Defensible</span></td></tr>
+      <tr><td>19</td><td>van den Bekerom, Struijs, et al. — “What is the evidence for rest, ice, compression, and elevation therapy…” (JAT, 2012)</td>
+        <td class="heur">—</td><td class="src">Crossref, PubMed</td><td><span class="badge b-d">Defensible</span></td></tr>
+      <tr><td>20</td><td>Waterman, Owens, Davey, Zacchilli, Belmont — “The epidemiology of ankle sprains in the United States” (JBJS, 2010)</td>
+        <td class="heur">—</td><td class="src">Crossref, PubMed</td><td><span class="badge b-d">Defensible</span></td></tr>
+    </tbody>
+  </table>
+
+  <!-- ====================== SECTION 3 ====================== -->
+  <h2 class="section">3 · Ranked Suspicion Index</h2>
+
+  <div class="rank"><span class="tag" style="color:var(--h)">HIGH · 3 flags</span>
+    <h3>[2] Ahmed, Rashid, Khan (2024) — real title, everything else fabricated</h3>
+    <p>Real title (Karakoyun et al., <em>Ulus. Travma Acil Cerrahi Derg.</em> 30(4):248–253) with wholly substituted authors, journal and page range.</p>
+    <p class="action">→ Recommend author query. Request original source documentation.</p></div>
+
+  <div class="rank"><span class="tag" style="color:var(--h)">HIGH · 3 flags</span>
+    <h3>[4] Alam, Sharma, Verma (2025) — real study, mutated author/journal/title</h3>
+    <p>Underlying paper is Khan et al., <em>International Health Review</em> 3(1):20–32 (2023); citation swaps authors, mutates the journal to “Int. <em>Journal</em> of Health Research,” and alters the title and numbers.</p>
+    <p class="action">→ Recommend author query. Request original source documentation.</p></div>
+
+  <div class="rank"><span class="tag" style="color:var(--h)">HIGH · 3 flags</span>
+    <h3>[5] Bota, Ionescu, Popescu (2025) — borrowed review title, fake authors/journal</h3>
+    <p>Title lifted from Bocchino et al., <em>J. Clin. Med.</em> 14(5):1440 (2025); cited authors and “Sports Medicine — Open” are fabricated.</p>
+    <p class="action">→ Recommend author query. Request original source documentation.</p></div>
+
+  <div class="rank"><span class="tag" style="color:var(--h)">HIGH · 3 flags</span>
+    <h3>[13] Kim, Kim (2017) — borrowed title, fabricated author/journal/year</h3>
+    <p>Real paper is Lee &amp; Lee, <em>Technology and Health Care</em> 23(3):333–341 (2015). Citation fabricates the authors, journal, year, volume and pages.</p>
+    <p class="action">→ Recommend author query. Request original source documentation.</p></div>
+
+  <div class="rank"><span class="tag" style="color:var(--h)">HIGH · 2 flags</span>
+    <h3>[3] Al-Shareef, Omar, Ibrahim (2016) — real authors, mutated topic</h3>
+    <p>Their real 2016 paper concerns chronic low back pain; the title was rewritten to “ankle sprain injury” and the journal/volume fabricated.</p>
+    <p class="action">→ Recommend author query. Request original source documentation.</p></div>
+
+  <div class="rank"><span class="tag" style="color:var(--h)">HIGH · 2 flags</span>
+    <h3>[15] Malik, Singh, Sharma (2025) — borrowed title, fake authors/journal</h3>
+    <p>The exact title is attributed elsewhere to Jadav/Sojitra/Shah; no “Malik et al. / Indian J. Sports Physiotherapy” record exists.</p>
+    <p class="action">→ Recommend author query. Request original source documentation.</p></div>
+
+  <div class="rank"><span class="tag" style="color:var(--h)">HIGH · 2 flags</span>
+    <h3>[1] Aguilar-Ferrándiz, Castro-Sánchez (2016) — real authors, unlocatable paper</h3>
+    <p>No JMPT 39(8):541–550 (2016) ankle-sprain paper exists; the authors’ real KT trial is on venous insufficiency (<em>Clin. Rehabil.</em>, 2014).</p>
+    <p class="action">→ Recommend author query. Request original source documentation.</p></div>
+
+  <div class="rank"><span class="tag" style="color:var(--e)">ELEVATED · 1 flag</span>
+    <h3>[6] Botia Gonzalez, Coronell-Alean (2023) — shadow paper</h3>
+    <p>No matching record in any indexed source; predatory-template journal name. Cannot confirm a borrowed source, so held below High.</p>
+    <p class="action">→ Recommend manual verification before acceptance.</p></div>
+
+  <!-- ====================== SECTION 4 ====================== -->
+  <h2 class="section">4 · Cleaned APA 7th-Edition Reference List</h2>
+  <div class="apa">
+    <ol>
+      <li>Aguilar-Ferrándiz, M. E., Castro-Sánchez, A. M., et al. (2016). <em>Effects of kinesio taping on pain, range of motion, and disability in patients with lateral ankle sprains.</em> Journal of Manipulative and Physiological Therapeutics, 39(8), 541–550. <span class="flag">[FLAGGED — no matching record; suspected fabrication. See forensic audit.]</span></li>
+      <li>Ahmed, T., Rashid, M., &amp; Khan, F. (2024). <em>The impact of ankle kinesio taping on pain management in patients with acute ankle sprain.</em> Journal of Sports Rehabilitation, 33(4), 112–119. <span class="flag">[FLAGGED — real title; authors/journal/pages do not match the verified record (Karakoyun et al., Ulus Travma Acil Cerrahi Derg, 2024). See forensic audit.]</span></li>
+      <li>Al-Shareef, A. T., Omar, M. T. A., &amp; Ibrahim, A. H. M. (2016). <em>Effect of Kinesio taping on pain and functional performance in ankle sprain injury.</em> Physical Therapy and Rehabilitation, 3(1), 1–10. <span class="flag">[FLAGGED — these authors’ real 2016 paper is on chronic low back pain; topic/title mutated. See forensic audit.]</span></li>
+      <li>Alam, S., Sharma, P., &amp; Verma, R. (2025). <em>Effectiveness of Kinesio taping versus Mulligan’s mobilization with movement on NPRS, FAAM (ADL), and FAAM (Sports) in athletes with ankle sprain.</em> International Journal of Health Research, 14(2), 45–54. <span class="flag">[FLAGGED — real study is Khan et al., International Health Review, 3(1), 20–32 (2023); authors/journal/title mutated. See forensic audit.]</span></li>
+      <li>Bota, G., Ionescu, A., &amp; Popescu, D. (2025). <em>The effects of Kinesio tape on acute ankle sprain: A systematic review.</em> Sports Medicine — Open, 11(1), 23–31. <span class="flag">[FLAGGED — title belongs to Bocchino et al., Journal of Clinical Medicine, 14(5), 1440 (2025); authors/journal fabricated. See forensic audit.]</span></li>
+      <li>Botia Gonzalez, J. L., &amp; Coronell-Alean, J. D. (2023). <em>Kinesiology taping and its role in chronic ankle instability: A critical review.</em> Journal of Physiotherapy and Physical Rehabilitation, 8(2), 301–309. <span class="flag">[FLAGGED — no matching record located; shadow-paper signature. See forensic audit.]</span></li>
+      <li>Doherty, C., Bleakley, C., Delahunt, E., &amp; Holden, S. (2017). Treatment and prevention of acute and recurrent ankle sprain: An overview of systematic reviews with meta-analysis. <em>British Journal of Sports Medicine, 51</em>(2), 113–125. https://doi.org/10.1136/bjsports-2016-096178</li>
+      <li>Fong, D. T. P., Chan, Y. Y., Mok, K. M., Yung, P. S. H., &amp; Chan, K. M. (2009). Understanding acute ankle ligamentous sprain injury in sports. <em>Sports Medicine, Arthroscopy, Rehabilitation, Therapy &amp; Technology, 1</em>(1), 14. https://doi.org/10.1186/1758-2555-1-14</li>
+      <li>Gribble, P. A., Bleakley, C. M., Caulfield, B. M., Docherty, C. L., Fourchet, F., Fong, D. T. P., … Delahunt, E. (2016). Evidence review for the 2016 International Ankle Consortium consensus statement on the prevalence, impact and long-term consequences of lateral ankle sprains. <em>British Journal of Sports Medicine, 50</em>(24), 1496–1505. https://doi.org/10.1136/bjsports-2016-096189</li>
+      <li>Halseth, T., McChesney, J. W., DeBeliso, M., Vaughn, R., &amp; Lien, J. (2004). The effects of Kinesio taping on proprioception at the ankle. <em>Journal of Sports Science and Medicine, 3</em>(1), 1–7.</li>
+      <li>Kase, K., Wallis, J., &amp; Kase, T. (2003). <em>Clinical therapeutic applications of the Kinesio taping method</em> (2nd ed.). Ken Ikai Co. Ltd.</li>
+      <li>Kerkhoffs, G. M. M. J., van den Bekerom, M., Elders, L. A. M., et al. (2012). Diagnosis, treatment and prevention of ankle sprains: An evidence-based clinical guideline. <em>British Journal of Sports Medicine, 46</em>(12), 854–860. https://doi.org/10.1136/bjsports-2011-090490</li>
+      <li>Kim, B. J., &amp; Kim, D. Y. (2017). <em>Immediate effects of ankle balance taping with Kinesiology tape on the dynamic balance of young players with functional ankle instability.</em> Journal of Physical Therapy Science, 29(11), 1989–1992. <span class="flag">[FLAGGED — title belongs to Lee &amp; Lee, Technology and Health Care, 23(3), 333–341 (2015); authors/journal/year fabricated. See forensic audit.]</span></li>
+      <li>Lim, E. C. W., &amp; Tay, M. G. X. (2015). Kinesio taping in musculoskeletal pain and disability that lasts for more than 4 weeks: Is it time to peel off the tape and throw it out with the sweat? A systematic review with meta-analysis. <em>British Journal of Sports Medicine, 49</em>(24), 1558–1566. https://doi.org/10.1136/bjsports-2014-094151</li>
+      <li>Malik, A., Singh, R., &amp; Sharma, K. (2025). <em>Effectiveness of Kinesiology Taping on pain and functional performance in acute ankle sprain: A randomized controlled trial.</em> Indian Journal of Sports Physiotherapy, 18(1), 22–30. <span class="flag">[FLAGGED — title attributed elsewhere to a different author set; no matching record for these authors/journal. See forensic audit.]</span></li>
+      <li>Martin, R. L., Irrgang, J. J., Burdett, R. G., Conti, S. F., &amp; Van Swearingen, J. M. (2005). Evidence of validity for the Foot and Ankle Ability Measure (FAAM). <em>Foot &amp; Ankle International, 26</em>(11), 968–983. https://doi.org/10.1177/107110070502601113</li>
+      <li>Moore, K. L., Dalley, A. F., &amp; Agur, A. M. R. (2014). <em>Clinically oriented anatomy</em> (7th ed.). Lippincott Williams &amp; Wilkins.</li>
+      <li>Parreira, P. C. S., Costa, L. C. M., Hespanhol, L. C., Lopes, A. D., &amp; Costa, L. O. P. (2014). Current evidence does not support the use of Kinesio Taping in clinical practice: A systematic review. <em>Journal of Physiotherapy, 60</em>(1), 31–39. https://doi.org/10.1016/j.jphys.2013.12.008</li>
+      <li>van den Bekerom, M. P. J., Struijs, P. A. A., Blankevoort, L., Welling, L., van Dijk, C. N., &amp; Kerkhoffs, G. M. M. J. (2012). What is the evidence for rest, ice, compression, and elevation therapy in the treatment of ankle sprains in adults? <em>Journal of Athletic Training, 47</em>(4), 435–443. https://doi.org/10.4085/1062-6050-47.4.14</li>
+      <li>Waterman, B. R., Owens, B. D., Davey, S., Zacchilli, M. A., &amp; Belmont, P. J. (2010). The epidemiology of ankle sprains in the United States. <em>The Journal of Bone and Joint Surgery (American), 92</em>(13), 2279–2284. https://doi.org/10.2106/JBJS.I.01537</li>
+    </ol>
+  </div>
+
+  <!-- ====================== SECTION 5 ====================== -->
+  <h2 class="section">5 · PRISMA-Style Flow</h2>
+  <div class="prisma">
+    <div class="pr-box">20 references submitted</div>
+    <div class="pr-arrow">↓</div>
+    <div class="pr-box">Ingestion &amp; normalization — 0 DOIs present (all DOI-less)</div>
+    <div class="pr-arrow">↓</div>
+    <div class="pr-box">Live verification · Crossref · PubMed · publisher archives · WorldCat</div>
+    <div class="pr-split">
+      <div><div class="pr-arrow">↙</div><div class="pr-box">DOI-bearing: 0</div></div>
+      <div><div class="pr-arrow">↘</div><div class="pr-box">Journal/book + grey: 20</div></div>
+    </div>
+    <div class="pr-arrow">↓</div>
+    <div class="pr-box">Forensic heuristic battery (7 heuristics; H8 omitted in Mode A)</div>
+    <div class="pr-arrow">↓</div>
+    <div class="pr-tiers">
+      <span class="t bg-h">H: 7</span><span class="t bg-e" style="color:#fff">E: 1</span>
+      <span class="t bg-m">M: 0</span><span class="t bg-d" style="color:#fff">D: 12</span>
+    </div>
+  </div>
+
+  <!-- ====================== SECTION 6 ====================== -->
+  <h2 class="section">6 · Forensic Appendix</h2>
+  <div class="appendix">
+    <h3>Methodology</h3>
+    <p>The 20-entry reference list was audited in isolation (Mode A); the manuscript body was not consulted, so
+    Heuristic 8 (sneaked / uncited references) was not applied. No reference carried a DOI, so each entry was verified
+    by matching its cited title, authors, journal, year, volume, issue and page range against authoritative records
+    via live web search — Crossref, PubMed/PMC, publisher archives (BJSM, Wiley, Springer, Elsevier/ScienceDirect),
+    and WorldCat for monographs. Retraction Watch and Crossref retraction flags were checked for the resolved papers
+    (none found). Risk tiers were assigned per the criteria below.</p>
+
+    <h3>Heuristics applied</h3>
+    <table>
+      <thead><tr><th>#</th><th>Heuristic</th><th>One-line definition (findings in this audit)</th></tr></thead>
+      <tbody>
+        <tr><td>H1</td><td>DOI resolution failure</td><td>Dead/wrong/fabricated DOIs. <em>N/A — no DOIs supplied.</em></td></tr>
+        <tr><td>H2</td><td>Homoglyph substitution</td><td>Unicode lookalike characters. <em>None detected.</em></td></tr>
+        <tr><td>H3</td><td>Digit-swap</td><td>Transposed/altered volume, issue, pages, year. <em>Subsumed in the fabricated metadata of R2, R4, R13.</em></td></tr>
+        <tr><td>H4</td><td>Author-shifting</td><td>Author list differs from the verified record. <em>R1, R2, R4, R5, R13, R15.</em></td></tr>
+        <tr><td>H5</td><td>Double-Real / metadata mismatch</td><td>A real, findable publication paired with mismatched citation metadata. <em>R2, R3, R4, R5, R13.</em></td></tr>
+        <tr><td>H6</td><td>Journal mutation</td><td>Altered or substituted journal title. <em>R2, R3, R4, R5, R13, R15.</em></td></tr>
+        <tr><td>H7</td><td>Shadow-paper signature</td><td>Plausible metadata matching no real publication. <em>R1, R6.</em></td></tr>
+        <tr><td>H8</td><td>Sneaked reference</td><td><em>Not applied — Mode A (reference list only).</em></td></tr>
+      </tbody>
+    </table>
+
+    <h3>Scoring</h3>
+    <p><code>Score = 100 − (H×12) − (E×5) − (M×2) − (D×3) = 100 − (7×12) − (1×5) − 0 − (12×3) = −25</code>,
+    floored to <strong>0/100</strong>. Any score below 50 indicates systemic integrity concerns; a result this far below
+    zero reflects that more than a third of the reference list is fabricated or manipulated. Note the pattern:
+    the genuine references are real <em>landmark</em> ankle/KT papers cited accurately, while the fabricated entries are
+    interleaved among them — a citation-laundering signature in which real sources lend credibility to invented ones.</p>
+
+    <h3>Audit limitations</h3>
+    <ul>
+      <li>None of the references supplied a DOI; verification relied on title/metadata matching against indexed records.</li>
+      <li>Shadow-paper detection (R1, R6) depends on database coverage; an obscure or non-indexed source could in principle exist, though targeted exact-title searches returned nothing.</li>
+      <li>Mode A audits the reference list only. Whether these references are actually cited in the manuscript body — and whether any are sneaked/padding — was not assessed; a Mode B run on the full manuscript would add that dimension.</li>
+      <li>This audit informs editorial judgment; it is not a definitive determination of fraud.</li>
+    </ul>
+
+    <div class="cope">
+      <strong>COPE alignment:</strong> Seven High-risk findings were identified. Editors should consult the COPE
+      Flowchart for Suspected Fabricated or Falsified Data — the density and consistency of the manipulation here
+      (real titles with fabricated authors/journals; real authors with mutated papers) is characteristic of paper-mill
+      reference laundering and warrants escalation beyond a routine author query.
+    </div>
+  </div>
+
+  <footer>
+    Generated by the Forensic Reference-Integrity Auditor (v4) · Reference-Checker · 15 June 2026 · Mode A.
+    Verification performed via live web search against Crossref, PubMed, Retraction Watch, publisher archives and WorldCat.
+    Findings should inform, not replace, editorial judgment.
+  </footer>
+
+</div>
+</body>
+</html>
