@@ -27,6 +27,28 @@ This document describes the heuristics and capabilities planned for v4 of the Fo
 
 ---
 
+### DOI-Independent Metadata-Mismatch Detection
+
+**Priority:** High (evidence-driven — surfaced by real-article test runs)
+
+**What it catches:** A real, independently verifiable publication paired with citation metadata that does not match it, on references that carry **no DOI**. Two observed sub-patterns:
+- **Borrowed-title:** a genuine paper's title is copied verbatim but bolted onto fabricated authors, journal, volume, and pages — the cited *coordinates* resolve to nothing, while the *title* resolves to a different, real paper.
+- **Borrowed-author / mutated-paper:** a real author set is retained but the title and topic are rewritten (e.g., the authors' real paper is on chronic low back pain; the citation rewrites it as an ankle-sprain study).
+
+**Why this is a gap in the current prompt:** v4's Heuristic 5 (Double-Real trap) targets the same intent but is written around a **DOI anchor** — "a real, valid DOI paired with metadata from a completely different real paper." IEEE-numbered lists and much grey literature carry no DOI, so the DOI-resolution path (H1) never fires and the metadata cross-check has no anchor to start from. Both real-article audit runs on 2026-06-15 (the Madhukar/Bano `IJNTR12040012` Mode-B run and the Amarnath/Sharma `IJNTR12020003` Mode-A run) were dominated by exactly this pattern; H5 had to be stretched to cover DOI-less entries, and on the 20-reference Amarnath list it was the single most common manipulation (7 of 20 entries — real titles with fabricated authors/journals, and real authors with mutated papers, interleaved among 12 correctly cited landmark papers).
+
+**Implementation approach:**
+- Make the Stage-2 metadata cross-check DOI-independent: for every reference, run a *title-first* search and an *author+year* search as parallel verification anchors, not only a DOI resolution.
+- When the cited title resolves to a real publication whose authors/journal/volume/year disagree with the citation → **borrowed-title** finding.
+- When the cited authors resolve to a real publication whose title/topic disagrees → **borrowed-author** finding.
+- Distinguish from legitimate truncation (a citation that merely shortens a long subtitle): require a *semantic* divergence — different topic, different journal, or different first author — not just a shortened string.
+
+**Why high priority:** It is the empirically dominant manipulation in the real-article test corpus to date, and the current heuristic set under-detects it on DOI-less reference lists — the most common citation format in many non-biomedical and predatory venues.
+
+**Dependencies:** Title- and author-keyed search against Crossref/PubMed/Google Scholar (already used in Stage 2). No new data source — this is a generalization of the existing Double-Real check to the no-DOI case.
+
+---
+
 ### Temporal Impossibility Checks
 
 **Priority:** High
@@ -169,11 +191,12 @@ Make the HTML report output customizable:
 ## Prioritized Implementation Order
 
 1. **Sneaked-reference detection** — Highest signal-to-effort ratio. Testable immediately.
-2. **Temporal impossibility checks** — Unambiguous signals, low false-positive rate.
-3. **API-based orchestration** — Prerequisite for scaling and for batch-pattern detection.
-4. **Crossref retraction API integration** — Optimization of existing capability.
-5. **Predatory journal flagging** — Valuable but requires careful calibration.
-6. **Batch-pattern detection** — High value but requires persistent state infrastructure.
-7. **COPE flowchart alignment** — Presentation enhancement for productization.
-8. **Token budget management** — Operational optimization.
-9. **Report template system** — Customization for publisher adoption.
+2. **DOI-independent metadata-mismatch detection** — Empirically the dominant manipulation in real-article tests; generalizes the Double-Real check to DOI-less references with no new data source.
+3. **Temporal impossibility checks** — Unambiguous signals, low false-positive rate.
+4. **API-based orchestration** — Prerequisite for scaling and for batch-pattern detection.
+5. **Crossref retraction API integration** — Optimization of existing capability.
+6. **Predatory journal flagging** — Valuable but requires careful calibration.
+7. **Batch-pattern detection** — High value but requires persistent state infrastructure.
+8. **COPE flowchart alignment** — Presentation enhancement for productization.
+9. **Token budget management** — Operational optimization.
+10. **Report template system** — Customization for publisher adoption.

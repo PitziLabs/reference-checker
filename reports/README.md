@@ -17,4 +17,5 @@ Reports are self-contained HTML files. Open them directly in any browser — no 
 
 | Report | Input Source | Date | Notes |
 |---|---|---|---|
-| *(Add entries as audit reports are generated)* | | | |
+| [madhukar-2026-2026-06-15.html](madhukar-2026-2026-06-15.html) | `IJNTR12040012.pdf` (real article, Mode B) | 2026-06-15 | Parkinson's LSVT BIG vs. Nordic Walking paper. 5 refs; score 54. 3 High (1 fabricated shadow paper, 2 real papers with mutated titles), all 5 uncited orphan/sneaked references. |
+| [amarnath-2026-2026-06-15.html](amarnath-2026-2026-06-15.html) | `IJNTR12020003.pdf` (real article, Mode A) | 2026-06-15 | Ankle-sprain kinesiology-taping paper. 20 refs; raw score −25 (floored to 0). 7 High fabrications/manipulations interleaved with 12 genuine landmark papers — a citation-laundering signature. |

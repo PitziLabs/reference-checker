@@ -1,0 +1,401 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Forensic Reference-Integrity Audit — Madhukar &amp; Bano (IJNTR 2026)</title>
+<style>
+  :root{
+    --bg:#0f1115; --panel:#171a21; --panel2:#1d212b; --ink:#e7eaf0; --muted:#9aa3b2;
+    --line:#2a2f3a; --h:#e5484d; --e:#f76808; --m:#f5d90a; --d:#30a46c; --accent:#4f9cf9;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--bg);color:var(--ink);
+       font:15px/1.55 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;}
+  .wrap{max-width:1040px;margin:0 auto;padding:32px 24px 80px;}
+  header.title{border-bottom:1px solid var(--line);padding-bottom:20px;margin-bottom:28px;}
+  header.title h1{font-size:24px;margin:0 0 6px;letter-spacing:.2px;}
+  header.title .sub{color:var(--muted);font-size:14px;}
+  .pill{display:inline-block;font-size:11px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;
+        padding:3px 9px;border-radius:999px;border:1px solid var(--line);color:var(--muted);margin-right:6px;}
+  .notice{background:#1a1408;border:1px solid #5a4408;border-radius:10px;padding:12px 16px;
+          color:#f0d79a;font-size:13px;margin:18px 0 0;}
+  .extract{background:var(--panel2);border:1px solid var(--line);border-radius:10px;padding:14px 18px;
+           font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-size:13px;white-space:pre-wrap;
+           color:#cdd5e3;margin:22px 0;}
+  h2.section{font-size:13px;letter-spacing:.12em;text-transform:uppercase;color:var(--accent);
+             border-top:1px solid var(--line);padding-top:26px;margin:42px 0 16px;}
+  .dash{display:grid;grid-template-columns:300px 1fr;gap:24px;align-items:center;}
+  @media(max-width:760px){.dash{grid-template-columns:1fr}}
+  .gauge{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:16px;text-align:center;}
+  .gauge .score{font-size:46px;font-weight:800;line-height:1;margin-top:-6px;}
+  .gauge .zone{font-size:12px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--e);margin-top:4px;}
+  .gauge .scale{font-size:11px;color:var(--muted);margin-top:8px;}
+  .cards{display:grid;grid-template-columns:repeat(5,1fr);gap:12px;}
+  @media(max-width:760px){.cards{grid-template-columns:repeat(2,1fr)}}
+  .card{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:14px;}
+  .card .n{font-size:30px;font-weight:800;line-height:1;}
+  .card .l{font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.06em;margin-top:6px;}
+  .card.h .n{color:var(--h)} .card.e .n{color:var(--e)} .card.d .n{color:var(--d)} .card.s .n{color:var(--e)}
+  .heat{display:flex;gap:6px;flex-wrap:wrap;margin-top:18px;}
+  .heat .cell{width:46px;height:46px;border-radius:8px;display:flex;align-items:center;justify-content:center;
+              font-weight:800;font-size:13px;color:#0b0d10;position:relative;}
+  .heat .cell small{position:absolute;bottom:3px;right:5px;font-size:9px;font-weight:700;opacity:.75;}
+  .bg-h{background:var(--h)} .bg-e{background:var(--e)} .bg-m{background:var(--m)} .bg-d{background:var(--d)}
+  .legend{font-size:12px;color:var(--muted);margin-top:10px;}
+  .legend span{display:inline-flex;align-items:center;margin-right:14px;}
+  .legend i{width:11px;height:11px;border-radius:3px;display:inline-block;margin-right:5px;}
+  table{width:100%;border-collapse:collapse;font-size:13.5px;}
+  th,td{text-align:left;padding:10px 10px;border-bottom:1px solid var(--line);vertical-align:top;}
+  th{font-size:11px;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);font-weight:700;}
+  tr.finding td{border-bottom:none;padding-top:0;}
+  .finding .box{background:var(--panel2);border-left:3px solid var(--e);border-radius:0 8px 8px 0;
+                padding:9px 12px;font-size:13px;color:#d3dae6;margin:0 0 6px;}
+  .finding .box.h{border-left-color:var(--h)}
+  .badge{display:inline-block;font-size:11px;font-weight:800;letter-spacing:.04em;padding:3px 9px;border-radius:6px;color:#0b0d10;}
+  .b-h{background:var(--h)} .b-e{background:var(--e);color:#fff} .b-m{background:var(--m)} .b-d{background:var(--d);color:#fff}
+  .heur{font-size:12px;color:#e7c08a;}
+  .src{font-size:12px;color:var(--muted);}
+  .rank{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:16px 18px;margin:0 0 14px;}
+  .rank h3{margin:0 0 2px;font-size:15px;}
+  .rank .tag{font-size:11px;font-weight:700;letter-spacing:.05em;}
+  .rank p{margin:6px 0;font-size:13.5px;color:#d3dae6;}
+  .rank .action{font-size:12.5px;color:var(--muted);font-style:italic;}
+  .apa{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:16px 22px;}
+  .apa ol{margin:0;padding-left:22px;} .apa li{margin:0 0 14px;font-size:13.5px;}
+  .apa .flag{color:var(--h);font-weight:700;font-size:12px;}
+  .apa em{color:#cdd5e3;}
+  .prisma{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:20px;text-align:center;}
+  .pr-box{display:inline-block;background:var(--panel2);border:1px solid var(--line);border-radius:8px;
+          padding:8px 16px;font-size:13px;margin:4px;}
+  .pr-arrow{color:var(--muted);font-size:18px;margin:2px 0;}
+  .pr-split{display:flex;gap:24px;justify-content:center;flex-wrap:wrap;}
+  .pr-tiers .t{display:inline-block;border-radius:8px;padding:8px 14px;font-weight:800;margin:4px;color:#0b0d10;}
+  .appendix h3{font-size:14px;margin:20px 0 8px;color:var(--ink);}
+  .appendix p,.appendix li{font-size:13.5px;color:#cfd6e2;}
+  .cope{background:#1a0d0d;border:1px solid #5a1a1c;border-radius:10px;padding:12px 16px;color:#f3b6b8;font-size:13px;}
+  code{background:#0b0d10;border:1px solid var(--line);border-radius:5px;padding:1px 5px;font-size:12.5px;}
+  footer{color:var(--muted);font-size:12px;border-top:1px solid var(--line);margin-top:48px;padding-top:18px;}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header class="title">
+    <div><span class="pill">Forensic Audit · v4</span><span class="pill">Mode B · Full manuscript</span></div>
+    <h1>Reference-Integrity Audit</h1>
+    <div class="sub">
+      <strong>Manuscript:</strong> “Comparative Effect of LSVT BIG Protocol versus Nordic Walking on
+      Balance, Gait and Fall Risk in Parkinson's Disease Patients” — S. Madhukar &amp; S. Bano.<br>
+      <strong>Source:</strong> International Journal of New Technology and Research (IJNTR),
+      ISSN 2454-4116, Vol-12, Issue-4, April 2026, pp. 04–06.<br>
+      <strong>Audit date:</strong> 15 June 2026 &nbsp;·&nbsp; <strong>References audited:</strong> 5
+    </div>
+    <div class="notice">
+      <strong>Privacy notice (manuscript mode):</strong> Processing this audit sent the manuscript
+      contents to the AI provider. Confirm this is consistent with your journal's editorial policies.
+      No content is retained after this session.
+    </div>
+  </header>
+
+  <div class="extract">[EXTRACTION SUMMARY]
+Mode: Full manuscript (Mode B)
+References extracted: 5
+Unique in-text citations identified: 0
+Orphan references (never cited in body): 5 — IDs: R1, R2, R3, R4, R5
+Broken in-text citations (no reference entry): 0
+Note: The manuscript body, tables, and figures contain NO citation markers of
+any kind ([n] or author-year). Every reference is therefore an orphan.
+Proceeding to forensic audit.</div>
+
+  <!-- ====================== SECTION 1 ====================== -->
+  <h2 class="section">1 · Executive Dashboard</h2>
+  <div class="dash">
+    <div class="gauge">
+      <svg viewBox="0 0 300 175" width="100%" height="150" role="img" aria-label="Confidence gauge: score 54 of 100">
+        <path d="M30 150 A120 120 0 0 1 150 30"  fill="none" stroke="#e5484d" stroke-width="22"/>
+        <path d="M150 30 A120 120 0 0 1 220.5 52.92" fill="none" stroke="#f76808" stroke-width="22"/>
+        <path d="M220.5 52.92 A120 120 0 0 1 256.9 95.52" fill="none" stroke="#f5d90a" stroke-width="22"/>
+        <path d="M256.9 95.52 A120 120 0 0 1 270 150" fill="none" stroke="#30a46c" stroke-width="22"/>
+        <line x1="150" y1="150" x2="162.5" y2="50.8" stroke="#e7eaf0" stroke-width="4" stroke-linecap="round"/>
+        <circle cx="150" cy="150" r="8" fill="#e7eaf0"/>
+        <text x="30"  y="170" fill="#9aa3b2" font-size="11">0</text>
+        <text x="262" y="170" fill="#9aa3b2" font-size="11">100</text>
+      </svg>
+      <div class="score">54</div>
+      <div class="zone">Orange · Escalate</div>
+      <div class="scale">85–100 clear · 70–84 review · 50–69 escalate · 0–49 systemic</div>
+    </div>
+    <div>
+      <div class="cards">
+        <div class="card"><div class="n">5</div><div class="l">Audited</div></div>
+        <div class="card h"><div class="n">3</div><div class="l">High risk</div></div>
+        <div class="card e"><div class="n">2</div><div class="l">Elevated</div></div>
+        <div class="card d"><div class="n">0</div><div class="l">Defensible</div></div>
+        <div class="card s"><div class="n">5</div><div class="l">Sneaked refs</div></div>
+      </div>
+      <div class="heat">
+        <div class="cell bg-e">1<small>E</small></div>
+        <div class="cell bg-h">2<small>H</small></div>
+        <div class="cell bg-e">3<small>E</small></div>
+        <div class="cell bg-h">4<small>H</small></div>
+        <div class="cell bg-h">5<small>H</small></div>
+      </div>
+      <div class="legend">
+        <span><i class="bg-h"></i>High</span><span><i class="bg-e"></i>Elevated</span>
+        <span><i class="bg-m"></i>Moderate</span><span><i class="bg-d"></i>Defensible</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- ====================== SECTION 2 ====================== -->
+  <h2 class="section">2 · Forensic Audit Table</h2>
+  <table>
+    <thead>
+      <tr><th style="width:28px">#</th><th>Reference (truncated)</th><th>Heuristics triggered</th>
+          <th>Verification sources</th><th style="width:90px">Risk tier</th></tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>1</td>
+        <td>D. Dorsey et al., “Global, regional, and national burden of Parkinson's disease…”</td>
+        <td class="heur">H4: author-shift (minor) · H8: sneaked</td>
+        <td class="src">Crossref, PubMed, Lancet Neurology</td>
+        <td><span class="badge b-e">Elevated</span></td>
+      </tr>
+      <tr class="finding"><td></td><td colspan="4">
+        <div class="box">Real paper — title, journal, volume (17), issue (11), pages (939–953) and year (2018)
+        all match the verified record (DOI 10.1016/S1474-4422(18)30295-3). However the cited first initial
+        <em>“D. Dorsey”</em> does not match the publication's first author, <strong>E. Ray Dorsey</strong>.
+        Held at Elevated (not High): the bibliographic core resolves exactly, so a single wrong initial reads
+        as transcription error rather than manipulation — but combined with orphan status it still warrants review.</div>
+      </td></tr>
+
+      <tr>
+        <td>2</td>
+        <td>J. Allen et al., “Falls in Parkinson's disease: Frequency, risk factors, and impact…”</td>
+        <td class="heur">H7: shadow-paper · H8: sneaked</td>
+        <td class="src">Crossref, PubMed, Google Scholar (search)</td>
+        <td><span class="badge b-h">High</span></td>
+      </tr>
+      <tr class="finding"><td></td><td colspan="4">
+        <div class="box h">No publication with this title exists at <em>Movement Disorders</em> 25(6):795–803, 2010.
+        An exact-title search returns nothing. The only real Allen-authored 2010 <em>Movement Disorders</em> paper is
+        “The effects of an exercise program on fall risk factors in people with Parkinson's disease: a randomized
+        controlled trial,” 25<strong>(9)</strong>:1217–1225 — a different title, issue and page range, with first author
+        <strong>N</strong>atalie E. Allen (not “J.”). Realistic surname + plausible journal/year with no matching record:
+        a shadow-paper fabrication.</div>
+      </td></tr>
+
+      <tr>
+        <td>3</td>
+        <td>G. Ebersbach et al., “Comparing exercise in Parkinson's disease—the Berlin LSVT BIG study”</td>
+        <td class="heur">H8: sneaked</td>
+        <td class="src">Crossref, PubMed, Movement Disorders (Wiley)</td>
+        <td><span class="badge b-e">Elevated</span></td>
+      </tr>
+      <tr class="finding"><td></td><td colspan="4">
+        <div class="box">Real paper, fully verified — <em>Movement Disorders</em> 25(12):1902–1908, 2010
+        (DOI 10.1002/mds.23212, PMID 20669294). Title, author, journal and all numeric fields match. Elevated solely
+        because it is an uncited orphan (Heuristic 8); no other anomaly detected.</div>
+      </td></tr>
+
+      <tr>
+        <td>4</td>
+        <td>G. Farley and G. Koshland, “Training BIG to move faster: The application of the LSVT-BIG to gait…”</td>
+        <td class="heur">H5: metadata mismatch (title) · H4: author-shift · H8: sneaked</td>
+        <td class="src">Crossref, PubMed, Springer (Exp Brain Res)</td>
+        <td><span class="badge b-h">High</span></td>
+      </tr>
+      <tr class="finding"><td></td><td colspan="4">
+        <div class="box h">The journal, volume (167), issue (3), pages (462–467) and year (2005) point to a
+        <em>real</em> paper (DOI 10.1007/s00221-005-0179-7, PMID 16283401) — but the cited title is mutated.
+        The actual title is “Training BIG to move faster: <strong>the application of the speed–amplitude relation as a
+        rehabilitation strategy for people with</strong> Parkinson's disease.” The cited subtitle
+        “<em>the application of the LSVT-BIG to gait</em>” is fabricated. The first author is <strong>B. G.</strong> Farley,
+        not “G. Farley.” Correct coordinates + invented title is a Double-Real-style metadata substitution.</div>
+      </td></tr>
+
+      <tr>
+        <td>5</td>
+        <td>M. van Eijkeren et al., “Nordic walking improves gait in Parkinson's disease”</td>
+        <td class="heur">H5: metadata mismatch (title) · H4: author-shift · H8: sneaked</td>
+        <td class="src">Crossref, PubMed, Movement Disorders (Wiley)</td>
+        <td><span class="badge b-h">High</span></td>
+      </tr>
+      <tr class="finding"><td></td><td colspan="4">
+        <div class="box h">The journal, volume (23), issue (15), pages (2239–2243) and year (2008) match a
+        <em>real</em> paper (DOI 10.1002/mds.22293, PMID 18816697) — but its true title is “Nordic walking improves
+        <strong>mobility</strong> in Parkinson's disease,” not “improves <em>gait</em>.” A single-word title substitution
+        on an otherwise-verifiable citation. The first author is <strong>F. J.</strong> van Eijkeren, not “M.”</div>
+      </td></tr>
+    </tbody>
+  </table>
+
+  <!-- ====================== SECTION 3 ====================== -->
+  <h2 class="section">3 · Ranked Suspicion Index</h2>
+
+  <div class="rank" style="border-color:var(--e)">
+    <h3 style="color:var(--e)">⚑ Sneaked-reference pattern — affects all 5 references</h3>
+    <p>A <em>sneaked</em> (or orphan) reference appears in the reference list but is never cited in the manuscript
+    body. It can pad the apparent evidence base, misrepresent the literature reviewed, or launder fabricated sources
+    by mixing them with real ones. In this manuscript there are <strong>no in-text citation markers anywhere</strong> —
+    not in the Introduction, Methods, Results, Discussion, tables, or figures. The entire reference list is decorative.
+    Where a sneaked reference also fails another heuristic (R2, R4, R5), the combination is the highest-risk signature.</p>
+  </div>
+
+  <div class="rank">
+    <span class="tag" style="color:var(--h)">HIGH · 2 flags</span>
+    <h3>[4] Farley &amp; Koshland — “…application of the LSVT-BIG to gait…” (2005)</h3>
+    <p>Real journal/volume/issue/pages, but the subtitle is fabricated (true subtitle: “the application of the
+    speed–amplitude relation as a rehabilitation strategy for people with…”). First initial also wrong (B.G. → “G.”).
+    Uncited orphan.</p>
+    <p class="action">→ Recommend author query. Request the original source PDF and confirm the exact title and authorship.</p>
+  </div>
+
+  <div class="rank">
+    <span class="tag" style="color:var(--h)">HIGH · 2 flags</span>
+    <h3>[5] van Eijkeren et al. — “Nordic walking improves gait…” (2008)</h3>
+    <p>Real journal/volume/issue/pages, but the title word is substituted (“gait” for the actual “mobility”).
+    First initial wrong (F.J. → “M.”). Uncited orphan.</p>
+    <p class="action">→ Recommend author query. Request the original source PDF and confirm the exact title and authorship.</p>
+  </div>
+
+  <div class="rank">
+    <span class="tag" style="color:var(--h)">HIGH · 1 flag</span>
+    <h3>[2] J. Allen et al. — “Falls in Parkinson's disease: Frequency, risk factors…” (2010)</h3>
+    <p>No matching publication found at the cited title, volume, issue or pages. Shadow-paper fabrication using a
+    plausible surname and journal. Uncited orphan.</p>
+    <p class="action">→ Recommend author query. Request original source documentation; treat as fabricated until proven otherwise.</p>
+  </div>
+
+  <div class="rank">
+    <span class="tag" style="color:var(--e)">ELEVATED · 1 flag</span>
+    <h3>[1] D. Dorsey et al. — “Global, regional, and national burden of Parkinson's disease…” (2018)</h3>
+    <p>Metadata matches the verified record exactly; only the first initial is wrong (cited “D.”, actual E. R. Dorsey).
+    Uncited orphan.</p>
+    <p class="action">→ Recommend manual verification before acceptance; correct the author initial and add the in-text citation.</p>
+  </div>
+
+  <div class="rank">
+    <span class="tag" style="color:var(--e)">ELEVATED · 1 flag</span>
+    <h3>[3] Ebersbach et al. — “…the Berlin LSVT BIG study” (2010)</h3>
+    <p>Fully verified, clean citation. Elevated only because it is an uncited orphan.</p>
+    <p class="action">→ Recommend manual verification before acceptance; add the in-text citation.</p>
+  </div>
+
+  <!-- ====================== SECTION 4 ====================== -->
+  <h2 class="section">4 · Cleaned APA 7th-Edition Reference List</h2>
+  <div class="apa">
+    <ol>
+      <li>
+        GBD 2016 Parkinson's Disease Collaborators. (2018). Global, regional, and national burden of Parkinson's
+        disease, 1990–2016: A systematic analysis for the Global Burden of Disease Study 2016.
+        <em>The Lancet Neurology, 17</em>(11), 939–953. https://doi.org/10.1016/S1474-4422(18)30295-3
+        <span class="flag">[FLAGGED — first author cited as “D. Dorsey”; verify against E. R. Dorsey / collaborator group. See forensic audit.]</span>
+      </li>
+      <li>
+        Allen, J., et al. (2010). Falls in Parkinson's disease: Frequency, risk factors, and impact on quality of life.
+        <em>Movement Disorders, 25</em>(6), 795–803.
+        <span class="flag">[FLAGGED — no matching publication found; suspected fabrication. See forensic audit.]</span>
+      </li>
+      <li>
+        Ebersbach, G., Ebersbach, A., Edler, D., Kaufhold, O., Kusch, M., Kupsch, A., &amp; Wissel, J. (2010).
+        Comparing exercise in Parkinson's disease — the Berlin BIG study.
+        <em>Movement Disorders, 25</em>(12), 1902–1908. https://doi.org/10.1002/mds.23212
+      </li>
+      <li>
+        Farley, B. G., &amp; Koshland, G. F. (2005). Training BIG to move faster: The application of the speed–amplitude
+        relation as a rehabilitation strategy for people with Parkinson's disease.
+        <em>Experimental Brain Research, 167</em>(3), 462–467. https://doi.org/10.1007/s00221-005-0179-7
+        <span class="flag">[FLAGGED — submitted title (“…the LSVT-BIG to gait…”) does not match the published title. See forensic audit.]</span>
+      </li>
+      <li>
+        van Eijkeren, F. J. M., Reijmers, R. S. J., Kleinveld, M. J., Minten, A., Ter Bruggen, J. P., &amp; Bloem, B. R.
+        (2008). Nordic walking improves mobility in Parkinson's disease.
+        <em>Movement Disorders, 23</em>(15), 2239–2243. https://doi.org/10.1002/mds.22293
+        <span class="flag">[FLAGGED — submitted title said “improves gait”; published title is “improves mobility”. See forensic audit.]</span>
+      </li>
+    </ol>
+  </div>
+
+  <!-- ====================== SECTION 5 ====================== -->
+  <h2 class="section">5 · PRISMA-Style Flow</h2>
+  <div class="prisma">
+    <div class="pr-box">Manuscript submitted</div>
+    <div class="pr-arrow">↓</div>
+    <div class="pr-box">Stage 0 · Reference extraction</div>
+    <div class="pr-split">
+      <div>
+        <div class="pr-arrow">↙</div><div class="pr-box">5 references extracted</div>
+      </div>
+      <div>
+        <div class="pr-arrow">↘</div><div class="pr-box" style="border-color:var(--e);color:#f0b277">5 orphan refs flagged</div>
+      </div>
+    </div>
+    <div class="pr-arrow">↓</div>
+    <div class="pr-box">Ingestion &amp; normalization — 0 DOIs present (all DOI-less)</div>
+    <div class="pr-arrow">↓</div>
+    <div class="pr-box">Live verification · Crossref · PubMed · publisher archives</div>
+    <div class="pr-arrow">↓</div>
+    <div class="pr-box">Forensic heuristic battery (8 heuristics)</div>
+    <div class="pr-arrow">↓</div>
+    <div class="pr-tiers">
+      <span class="t bg-h">H: 3</span><span class="t bg-e" style="color:#fff">E: 2</span>
+      <span class="t bg-m">M: 0</span><span class="t bg-d" style="color:#fff">D: 0</span>
+    </div>
+  </div>
+
+  <!-- ====================== SECTION 6 ====================== -->
+  <h2 class="section">6 · Forensic Appendix</h2>
+  <div class="appendix">
+    <h3>Methodology</h3>
+    <p>Each reference was normalized, then verified by live web search against Crossref, PubMed/PMC, Retraction Watch,
+    and publisher archives (Wiley/Movement Disorders, Springer/Experimental Brain Research, The Lancet Neurology).
+    No reference carried a DOI, so verification relied on matching cited title, author, journal, year, volume, issue and
+    page range to the authoritative record. All eight heuristics were applied (Mode B includes Heuristic 8,
+    sneaked-reference detection). Risk tiers were assigned per the criteria below.</p>
+
+    <h3>Heuristics applied</h3>
+    <table>
+      <thead><tr><th>#</th><th>Heuristic</th><th>One-line definition</th></tr></thead>
+      <tbody>
+        <tr><td>H1</td><td>DOI resolution failure</td><td>DOI dead, wrong target, or fabricated pattern. <em>(N/A — no DOIs supplied.)</em></td></tr>
+        <tr><td>H2</td><td>Homoglyph substitution</td><td>Unicode lookalike characters in names/titles. <em>(None detected.)</em></td></tr>
+        <tr><td>H3</td><td>Digit-swap</td><td>Transposed volume/issue/page/year/DOI digits. <em>(None detected — numerics matched.)</em></td></tr>
+        <tr><td>H4</td><td>Author-shifting</td><td>Author list differs from the publisher record. <em>(R1, R4, R5 — wrong first initials.)</em></td></tr>
+        <tr><td>H5</td><td>Double-Real / metadata mismatch</td><td>Real source coordinates paired with non-matching metadata (here, mutated titles). <em>(R4, R5.)</em></td></tr>
+        <tr><td>H6</td><td>Journal mutation</td><td>Altered journal title. <em>(None detected — journals matched.)</em></td></tr>
+        <tr><td>H7</td><td>Shadow-paper signature</td><td>Plausible metadata matching no real publication. <em>(R2.)</em></td></tr>
+        <tr><td>H8</td><td>Sneaked reference</td><td>Listed but never cited in the body. <em>(R1–R5 — all of them.)</em></td></tr>
+      </tbody>
+    </table>
+
+    <h3>Scoring</h3>
+    <p><code>Score = 100 − (H×12) − (E×5) − (M×2) − (D×3) = 100 − 36 − 10 − 0 − 0 = <strong>54</strong></code>.
+    A score of 54 falls in the orange band (50–69): <strong>escalate</strong>. With three High-risk findings and
+    every reference uncited, this list shows systemic integrity concerns disproportionate to its small size.</p>
+
+    <h3>Audit limitations</h3>
+    <ul>
+      <li>None of the five references supplied a DOI; verification relied on title/metadata matching against indexed records.</li>
+      <li>Shadow-paper detection depends on database coverage; a very recent or obscure publication could in principle exist outside indexed sources, though the R2 title returned nothing on exact-match search.</li>
+      <li>Sneaked-reference detection scanned the pasted manuscript text including the tables; if additional in-text citations existed in figures or an appendix not included here, the orphan count could be lower — verify against the full submitted file.</li>
+      <li>This audit informs editorial judgment; it is not a definitive determination of fraud.</li>
+    </ul>
+
+    <div class="cope">
+      <strong>COPE alignment:</strong> One or more High-risk findings were identified. Editors may wish to consult the
+      COPE Flowchart for Suspected Fabricated or Falsified Data when determining next steps.
+    </div>
+  </div>
+
+  <footer>
+    Generated by the Forensic Reference-Integrity Auditor (v4) · Reference-Checker · 15 June 2026.
+    Verification performed via live web search against Crossref, PubMed, Retraction Watch, and publisher archives.
+    Findings should inform, not replace, editorial judgment.
+  </footer>
+
+</div>
+</body>
+</html>
