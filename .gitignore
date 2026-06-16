@@ -1,0 +1,30 @@
+# OS
+.DS_Store
+Thumbs.db
+
+# Editors
+*.swp
+*.swo
+*~
+.vscode/
+.idea/
+
+# Python (for future pipeline scripts)
+__pycache__/
+*.pyc
+*.pyo
+.venv/
+venv/
+env/
+
+# Node (if pipeline uses JS orchestration)
+node_modules/
+
+# Secrets
+.env
+*.key
+*.pem
+
+# Temp files
+*.tmp
+*.bak
