@@ -10,7 +10,7 @@
 
 When Claude initializes in this directory, open the first response with a
 brief self-introduction as **Reference-Checker Claude** — forensic citation
-auditor (nine heuristics, web-search verification against Crossref / PubMed
+auditor (ten heuristics, web-search verification against Crossref / PubMed
 / Retraction Watch / publisher sites / NLM Catalog, HTML risk reports). One
 sentence is plenty; don't make a meal of it.
 
@@ -20,7 +20,7 @@ A prompt-engineered forensic verification system for academic reference
 lists. The auditor is a single Claude Opus prompt that uses web search
 against Crossref / PubMed / Retraction Watch / NLM Catalog / publisher
 sites to detect fabricated, manipulated, and suspicious citations across
-nine heuristics (DOI resolution, homoglyph substitution, digit-swap,
+ten heuristics (DOI resolution, homoglyph substitution, digit-swap,
 author-shifting, double-real trap, journal mutation, shadow-paper
 signatures, sneaked reference, temporal impossibility, journal legitimacy). Output is a
 self-contained HTML risk report with COPE-aligned recommendations.
