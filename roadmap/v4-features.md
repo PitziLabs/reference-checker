@@ -2,7 +2,7 @@
 
 This document describes the heuristics and capabilities planned for v4 of the Forensic Reference-Integrity Auditor. Each feature includes a description, implementation approach, priority assessment, and dependencies.
 
-**Status:** Ongoing. Sneaked-reference detection (Heuristic 8), temporal impossibility checks (Heuristic 9), and full COPE flowchart alignment shipped in v5. Remaining items below are planned.
+**Status:** Ongoing. Sneaked-reference detection (Heuristic 8), temporal impossibility checks (Heuristic 9), and full COPE flowchart alignment shipped in v5. Predatory journal flagging (Heuristic 10) and scoring formula fix shipped in v6. Remaining items below are planned.
 
 ---
 
@@ -64,26 +64,19 @@ This document describes the heuristics and capabilities planned for v4 of the Fo
 
 ### Predatory Journal Flagging
 
-**Priority:** Medium
+**Status: Shipped in v6** ([#7](../../issues/7))
 
-**What it catches:** References to journals identified as predatory or questionable by established assessment methodologies (primarily Cabells Predatory Reports).
+**What it catches:** References to journals not indexed in any recognized academic database while claiming to be peer-reviewed — a pattern associated with predatory, vanity, or otherwise unverified publishing venues.
 
-**Implementation approach:**
-- Cross-reference journal titles against known predatory journal lists
-- Check for Cabells classification (if accessible)
-- Apply heuristic indicators: journal not indexed in PubMed/Scopus/Web of Science, no COPE membership, suspicious publisher practices (rapid peer review claims, aggressive solicitation patterns)
-- Flag but do not auto-classify as High risk — some legitimate research is published in questionable venues
+**Implementation:** Shipped as Heuristic 10 in `prompts/v6-auditor.md`. Uses a hybrid whitelist-plus-community-list approach:
+- **Primary (positive signals):** DOAJ (`api.doaj.org`), PubMed/MEDLINE, Scopus source list, Web of Science Master Journal List. Any reputable indexing clears the journal.
+- **Secondary (corroboration only):** Beall's archived list (beallslist.net), Stop Predatory Journals. Never the sole basis for a flag.
+- **Risk calibration:** Elevated in isolation; High when combined with another heuristic trigger.
+- **Classification language:** Factual, non-accusatory framing — reports what was and was not found. "Predatory" is not used as a determination; "potentially predatory" or "unverified venue" at most.
+- **Exemptions:** Grey literature, established subscription journals indexed in Scopus/WoS, journals that improved and left predatory lists.
+- **Test set:** `test-sets/predatory-venues.md` (five references: three traps, two clean controls).
 
-**Complexity notes:**
-- "Predatory" is a contested term with no universal definition
-- Cabells Predatory Reports is behind a paywall and may not be programmatically accessible
-- Beall's List (discontinued, archived) is outdated and controversial
-- The heuristic should flag for editorial awareness, not make a definitive judgment
-- DOAJ (Directory of Open Access Journals) inclusion is a positive signal but not definitive
-
-**Why medium priority:** Valuable signal but complex to implement well. The risk of false positives (legitimate open-access journals flagged as predatory) requires careful calibration. Editorial sensitivity around this topic is high.
-
-**Dependencies:** Access to journal classification data. May require manual maintenance of a supplementary journal list.
+Data-source decision (2026-06-19): Cabells Predatory Reports is out of scope (paywalled, requires API pipeline #11 which is deferred). All signals are freely reachable via web search at run time.
 
 ---
 
@@ -182,7 +175,7 @@ Make the HTML report output customizable:
 3. ~~**Temporal impossibility checks**~~ — Shipped as Heuristic 9 in v5.
 4. **API-based orchestration** — Prerequisite for scaling and for batch-pattern detection.
 5. **Crossref retraction API integration** — Optimization of existing capability.
-6. **Predatory journal flagging** — Valuable but requires careful calibration.
+6. ~~**Predatory journal flagging**~~ — Shipped as Heuristic 10 in v6 (hybrid whitelist-plus-community-list approach).
 7. **Batch-pattern detection** — High value but requires persistent state infrastructure.
 8. ~~**COPE flowchart alignment**~~ — Shipped in v5 (fully mapped, five flowcharts, three escalation levels).
 9. **Token budget management** — Operational optimization.

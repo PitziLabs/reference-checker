@@ -22,7 +22,7 @@ against Crossref / PubMed / Retraction Watch / NLM Catalog / publisher
 sites to detect fabricated, manipulated, and suspicious citations across
 nine heuristics (DOI resolution, homoglyph substitution, digit-swap,
 author-shifting, double-real trap, journal mutation, shadow-paper
-signatures, sneaked reference, temporal impossibility). Output is a
+signatures, sneaked reference, temporal impossibility, journal legitimacy). Output is a
 self-contained HTML risk report with COPE-aligned recommendations.
 
 The "build system" is "paste the prompt into Claude with a reference
@@ -32,15 +32,16 @@ list." There is no compile step, test runner, or package manager.
 
 | Path | Purpose |
 |---|---|
-| `prompts/v<N>-auditor.md` | Versioned prompt files. **v5** is current; **v4** is the previous live version, kept for diffing. New revisions ship as the next integer. |
-| `docs/heuristics.md` | Per-heuristic deep dive (what it detects, how, known limitations, examples); includes COPE alignment mapping |
+| `prompts/v<N>-auditor.md` | Versioned prompt files. **v6** is current; **v5** is the previous live version, kept for diffing. New revisions ship as the next integer. |
+| `docs/heuristics.md` | Per-heuristic deep dive (what it detects, how, known limitations, examples); includes scoring formula documentation and COPE alignment mapping |
 | `docs/architecture.md` | Planned multi-model pipeline decomposition for editorial scale (design phase; not yet implemented) |
 | `docs/competitive-landscape.md` | What existing tools do and how this differs |
-| `test-sets/adversarial-30.md` | 30 deliberately-crafted bad citations covering all nine heuristics |
+| `test-sets/adversarial-30.md` | 30 deliberately-crafted bad citations covering all nine heuristics (H1–H9); frozen at v5 baseline |
 | `test-sets/temporal-impossibility.md` | 4-reference set targeting Heuristic 9 (temporal impossibility) specifically |
+| `test-sets/predatory-venues.md` | 5-reference set targeting Heuristic 10 (journal legitimacy) specifically; added in v6 |
 | `test-sets/real-articles/` | Reference lists pulled from real papers — sanity-check the false-positive rate |
 | `reports/` | Sample HTML audit outputs. Naming: `adversarial-30-YYYY-MM-DD.html` (test-set runs) or `{first-author-year}-YYYY-MM-DD.html` (real-article runs). See `reports/README.md`. |
-| `roadmap/v4-features.md` | Feature tracking (temporal impossibility and COPE alignment shipped in v5) |
+| `roadmap/v4-features.md` | Feature tracking (predatory journal flagging and scoring formula fix shipped in v6) |
 
 ## Conventions specific to this repo
 
