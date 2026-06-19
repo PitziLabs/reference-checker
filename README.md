@@ -29,9 +29,9 @@ The auditor runs as a structured prompt on Anthropic's Claude (Opus), using live
 - **Retraction Watch** — Known retraction and expression-of-concern database
 - **Publisher sites** — Direct verification against journal archives
 
-### Forensic Heuristics (v5)
+### Forensic Heuristics (v6)
 
-Each reference is evaluated against nine forensic heuristics designed to catch progressively more sophisticated fabrication:
+Each reference is evaluated against ten forensic heuristics designed to catch progressively more sophisticated fabrication:
 
 | # | Heuristic | What It Catches |
 |---|---|---|
@@ -44,6 +44,7 @@ Each reference is evaluated against nine forensic heuristics designed to catch p
 | 7 | **Shadow-Paper Signatures** | Citations with plausible metadata that match no known publication — fully fabricated but constructed to look legitimate |
 | 8 | **Sneaked Reference** | References present in the list but never cited in the manuscript body — reference-list padding designed to inflate the apparent evidence base. **Mode B (full manuscript) only**; skipped in Mode A (reference list only). |
 | 9 | **Temporal Impossibility** | Citations dated before the journal's founding year, after the manuscript's submission date (without ahead-of-print/preprint confirmation), or citing a volume/issue number that cannot have existed for the stated year. ([#6](../../issues/6)) |
+| 10 | **Journal Legitimacy** | Journals not indexed in DOAJ, PubMed, Scopus, or Web of Science while claiming peer-reviewed status — corroborated by community predatory-venue lists. Flags Elevated in isolation; escalates to High when combined with another heuristic trigger. ([#7](../../issues/7)) |
 
 ### Risk Classification
 
@@ -59,10 +60,10 @@ Every reference receives one of four risk tiers:
 ### Scoring Formula
 
 ```
-Reference List Score = 100 − (H × 12) − (E × 5) − (M × 2) − (D × 3)
+Reference List Score = 100 − (H × 12) − (E × 5) − (M × 2)
 ```
 
-The weights punish fabrication heavily while avoiding over-penalization of grey literature (government reports, organizational white papers, URLs) that legitimately lacks DOIs.
+A fully-clean reference list of any length scores 100. The weights punish fabrication heavily while avoiding over-penalization of grey literature (government reports, organizational white papers, URLs) that legitimately lacks DOIs. Defensible (verified clean) references incur no penalty, so a large clean article correctly scores at its maximum rather than being penalized for length. The Executive Dashboard also displays % Defensible as a complementary integrity signal.
 
 ## Output
 
@@ -84,7 +85,7 @@ The auditor produces a self-contained HTML report with six sections, designed fo
 
 ### Running an Audit
 
-1. Provide the prompt (see `prompts/v5-auditor.md`) to Claude with web search enabled.
+1. Provide the prompt (see `prompts/v6-auditor.md`) to Claude with web search enabled.
 2. Paste or upload the reference list to be audited.
 3. The auditor will systematically verify each reference and produce the HTML report.
 
@@ -116,6 +117,10 @@ Multiple real articles from JOGNN, MCN, and related nursing journals verified to
 
 ## Roadmap
 
+### Shipped in v6
+- **Journal legitimacy and predatory-venue flagging** — Heuristic 10: hybrid whitelist-plus-community-list approach. Primary positive signals: DOAJ, PubMed/MEDLINE, Scopus, Web of Science. Secondary corroboration: Beall's archived list, Stop Predatory Journals. Flags Elevated in isolation; escalates to High when combined with another heuristic trigger. Factual, non-accusatory classification language: never "predatory" as a verdict, at most "potentially predatory" or "unverified venue." Dedicated test set at `test-sets/predatory-venues.md`. ([#7](../../issues/7))
+- **Scoring formula fix** — Removed the D × 3 base cost; new formula is `Score = 100 − (H × 12) − (E × 5) − (M × 2)`. A clean reference list of any length now scores 100; scores are not directly comparable to v4/v5 baselines. % Defensible added as a prominent complementary signal in the Executive Dashboard. ([#43](../../issues/43))
+
 ### Shipped in v5
 - **Temporal impossibility checks** — Heuristic 9: citations dated before the journal's founding year, after the manuscript's submission date (with ahead-of-print/preprint exception), or citing a volume/issue that cannot have existed for the stated year. Dedicated test set at `test-sets/temporal-impossibility.md`. ([#6](../../issues/6))
 - **COPE flowchart alignment** — Fully mapped. Structured mapping from risk tier to five specific COPE flowcharts (suspected fabricated data in submitted manuscript, suspected fabricated data in published article, authorship disputes, suspected ghost/gift/guest authorship, suspected redundant publication), with three escalation levels (author query, editorial investigation, publisher/institution notification). ([#9](../../issues/9))
@@ -125,7 +130,6 @@ Multiple real articles from JOGNN, MCN, and related nursing journals verified to
 - **COPE alignment note** — *Partially shipped in v4; fully mapped in v5.* A single H-tier COPE note appeared in the v4 Forensic Appendix; expanded to full structured mapping in v5.
 
 ### Planned
-- **Predatory journal flagging** — Cabells-style methodology for identifying predatory or questionable venues. ([#7](../../issues/7))
 - **Crossref Retraction API integration** — Direct programmatic retraction checking in place of web-search fallback. ([#8](../../issues/8))
 - **Batch-pattern detection** — Statistical analysis across multiple submissions to identify coordinated fabrication campaigns. ([#10](../../issues/10))
 - **Pipeline decomposition** — Multi-model API pipeline (Haiku → Sonnet → Opus) for cost optimization at editorial scale. ([#11](../../issues/11))
@@ -162,19 +166,21 @@ Nothing gets added to the spec until it's been tested. The prompt is the artifac
 ```
 ├── README.md
 ├── prompts/
-│   ├── v5-auditor.md          # Current production prompt
-│   └── v4-auditor.md          # Previous version, retained for diffing
+│   ├── v6-auditor.md          # Current production prompt
+│   ├── v5-auditor.md          # Previous version, retained for diffing
+│   └── v4-auditor.md          # v4, retained for historical comparison
 ├── test-sets/
 │   ├── adversarial-30.md          # 30-reference adversarial set with layered traps
 │   ├── temporal-impossibility.md  # 4-reference set targeting Heuristic 9
+│   ├── predatory-venues.md        # 5-reference set targeting Heuristic 10
 │   └── real-articles/             # Real article reference lists used for validation
 ├── reports/                   # Sample output reports
 ├── docs/
-│   ├── heuristics.md          # Detailed heuristic documentation (all 9 heuristics + COPE mapping)
+│   ├── heuristics.md          # Detailed heuristic documentation (all 10 heuristics + scoring + COPE mapping)
 │   ├── competitive-landscape.md
 │   └── architecture.md        # Pipeline decomposition design
 └── roadmap/
-    └── v4-features.md         # Feature tracking (temporal impossibility and COPE alignment shipped in v5)
+    └── v4-features.md         # Feature tracking (predatory journal flagging and scoring fix shipped in v6)
 ```
 
 ## License

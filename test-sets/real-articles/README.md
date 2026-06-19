@@ -44,11 +44,13 @@ These articles were planned for testing but have no committed reference-list fil
 
 1. Extract the reference list from an authoritative machine-readable source: the Crossref reference array at `api.crossref.org/works/{DOI}`, or a PubMed Central open-access full-text record.
 2. Save as `[first-author-year].md`. Include a header with the article title, journal, year, DOI, and provenance source. Follow the numbered-list format of `test-sets/adversarial-30.md`.
-3. Run the **v5** auditor (`prompts/v5-auditor.md`) against the reference list in Mode A.
+3. Run the **v6** auditor (`prompts/v6-auditor.md`) against the reference list in Mode A.
 4. Commit the HTML report as `reports/[first-author-year]-YYYY-MM-DD.html`.
 5. Record the % Defensible and score in the applicable table above, and link the report.
 6. If any E or H flags appear, determine whether they are false positives or genuine findings, and document the calibration interpretation.
 
 ## Scoring note
 
-The scoring formula is `Score = 100 − (H×12) − (E×5) − (M×2) − (D×3)`. The D × 3 penalty means that numerical scores for clean articles are low even when all references are Defensible — a 30-reference clean list scores only 10 (100 − 90). The meaningful editorial signal for clean-corpus articles is the **% Defensible**, not the numerical score. The original 75–90 range in earlier versions of this README reflected small reference lists (≤8 refs) and does not apply to typical published articles with 20+ references.
+**v6 formula (current):** `Score = 100 − (H×12) − (E×5) − (M×2)`. Defensible references incur no penalty. A fully-clean reference list of any length scores 100. The meaningful editorial signals are the **score** (how many problems were found) and the **% Defensible** (what fraction passed all checks).
+
+**v5 formula (historical):** `Score = 100 − (H×12) − (E×5) − (M×2) − (D×3)`. The D × 3 penalty meant that numerical scores for clean articles were low even when all references were Defensible — a 30-reference clean list scored only 10 (100 − 90). The Ahmadinezhad and Patriksson scores in the clean corpus table above were produced under v5 and are not comparable to v6 scores. Under v6, both articles would score near 100 (a single High flag for Ahmadinezhad gives 88; Patriksson's minor Elevated/Moderate flags give approximately 89).

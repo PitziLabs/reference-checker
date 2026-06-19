@@ -187,6 +187,40 @@ Orphan references are assigned **Elevated** risk by default. If the orphan also 
 
 ---
 
+## 10. Journal Legitimacy and Predatory-Venue Flagging
+
+**What it catches:** Journals not indexed in any recognized academic database while claiming to be peer-reviewed — a pattern associated with predatory, vanity, or otherwise unverified publishing venues.
+
+**How it works:** The auditor applies a two-tier verification approach:
+
+- **Primary — positive signals (whitelist):** For each cited peer-reviewed journal, the auditor checks for indexing in DOAJ (`api.doaj.org`), PubMed/MEDLINE, the Scopus source list, and the Web of Science Master Journal List using live web search. Any reputable indexing clears the journal — the auditor does not proceed to secondary checks.
+
+- **Secondary — corroboration (free community lists):** If the journal fails all primary checks, the auditor cross-references beallslist.net (archived Beall's List) and Stop Predatory Journals as corroborating evidence. Community list presence supports the flag but is never its sole basis.
+
+**Why it matters:** Predatory and unverified venues accept manuscripts with little or no peer review, collect article processing charges, and inflate the apparent scholarly record. A citation to an unindexed venue may indicate a paper that was never peer-reviewed, a paper chosen because it could not otherwise be published, or a citation manufactured for an audience unlikely to verify journal quality. Flagging these venues supports an editor's decision to request independent verification of the cited claims.
+
+**Exemptions:**
+- Grey literature (government reports, organizational documents, white papers) has no journal indexing by design and is exempt from this heuristic.
+- Established subscription journals indexed in Scopus or Web of Science are not flagged even if absent from DOAJ (DOAJ covers open-access journals only).
+- Journals that previously appeared on community predatory lists but have since been removed after demonstrating improvement are not flagged; the auditor verifies current list status, not historical status.
+- Journal name changes: the auditor checks the indexing status for the journal name that was active during the cited period.
+
+**Classification language:** The auditor reports factually using positive-signal framing. It states what was found and what was not found — for example: *"[Journal name] was not found in DOAJ, Scopus, PubMed, or Web of Science; it also appears on [community source]."* The word "predatory" is not used as a determination. The phrases "potentially predatory" or "unverified venue" are used at most, and only when corroborating community-list evidence is present. This approach avoids the defamation and methodological risks of labeling a named journal predatory on the basis of community lists alone.
+
+**Risk calibration:** Elevated in isolation — the cited paper may be legitimate research published in a weak or minor venue. Escalates to High only when combined with another heuristic trigger on the same reference (e.g., H10 + H7: the journal is unverified AND the cited paper cannot be found in any database).
+
+**Limitations:**
+- DOAJ, Scopus, PubMed, and Web of Science coverage is updated regularly but not in real time. A journal not found at audit time may subsequently achieve indexing; H10 findings are signals for editorial scrutiny, not permanent verdicts.
+- Community lists (beallslist.net, Stop Predatory Journals) may not reflect journals that have recently improved or recently launched predatory operations. They are used as corroborating evidence only.
+- Very new or highly specialized legitimate journals may not yet be indexed and could trigger H10 incorrectly. The auditor notes this caveat and recommends editors verify with the journal directly for ISSN registration and indexing applications in progress.
+- Journals in non-English-speaking regions may be underrepresented in DOAJ and PubMed but appropriately indexed in regional databases. The auditor notes this limitation when regional-language journals are encountered.
+
+**Source authority:** DOAJ is authoritative for open-access journal legitimacy. PubMed/MEDLINE is authoritative for biomedical journals and the primary source for the nursing and health sciences scope of this auditor. Scopus and Web of Science are authoritative for broad academic indexing. Community lists (beallslist.net, Stop Predatory Journals) are advisory corroborating sources only.
+
+**Test set:** `test-sets/predatory-venues.md` — a five-reference set with three trap entries (two H10 Elevated in isolation, one H10 + H7 at High) and two clean controls in well-indexed journals (JOGNN, BMC Pregnancy and Childbirth).
+
+---
+
 ## Heuristic Interaction
 
 These heuristics are not independent — they interact and compound:
@@ -197,6 +231,7 @@ These heuristics are not independent — they interact and compound:
 - **Digit-Swap** combined with **Author-Shifting** on the same reference is a strong coordinated-fabrication signal.
 - A **Sneaked Reference** (Heuristic 8) that also triggers any other heuristic escalates immediately to High risk — the combination of "never cited in the body" and "metadata anomaly" is the highest-risk finding the auditor can produce.
 - **Temporal Impossibility** (Heuristic 9) in isolation is Elevated; combined with any other heuristic trigger on the same reference, it escalates to High. A pre-existence date combined with a Shadow-Paper finding (the journal didn't exist and the paper can't be found) is a near-certain fabrication.
+- **Journal Legitimacy** (Heuristic 10) in isolation is Elevated — the paper may be real research in a weak venue. Combined with any other heuristic trigger (H7 shadow-paper is the most common co-occurrence), it escalates to High. H10 + H7 (unverified venue, paper not findable anywhere) is a strong fabrication signal: both the venue and the specific paper fail all verification checks.
 
 The risk classification system accounts for these interactions. A reference triggering multiple heuristics receives a higher risk tier than one triggering a single heuristic in isolation.
 
@@ -212,11 +247,12 @@ The Committee on Publication Ethics (COPE) provides standardized investigation f
 
 | Finding type | Triggered heuristics | Applicable COPE flowchart |
 |---|---|---|
-| Fabricated or falsified citation data — submitted manuscript | H1, H3, H5, H7, H9 (and combinations) | Suspected Fabricated Data in a Submitted Manuscript |
-| Fabricated or falsified citation data — published article | H1, H3, H5, H7, H9 (and combinations) | Suspected Fabricated Data in a Published Article |
+| Fabricated or falsified citation data — submitted manuscript | H1, H3, H5, H7, H9, H10 when combined (and combinations) | Suspected Fabricated Data in a Submitted Manuscript |
+| Fabricated or falsified citation data — published article | H1, H3, H5, H7, H9, H10 when combined (and combinations) | Suspected Fabricated Data in a Published Article |
 | Author-list credit dispute | H4 (order or removal anomaly) | Authorship Disputes |
 | Undisclosed authorship contribution (ghost/gift/guest) | H4 (addition anomaly) | Suspected Ghost, Gift, or Guest Authorship |
 | Duplicate or redundant publication signals | Reference-level cross-match | Suspected Redundant (Duplicate) Publication |
+| Unverified or potentially predatory venue — no other flags | H10 alone (Elevated) | No dedicated COPE flowchart; editorial scrutiny of venue credibility is recommended. Verify indexing independently; contact journal for ISSN and indexing documentation; exercise editorial judgment. |
 
 ### Escalation levels
 
@@ -238,6 +274,50 @@ COPE procedures distinguish three escalation levels, which the auditor's recomme
 
 ---
 
+## Scoring Formula
+
+The reference list score aggregates per-reference risk findings into a single 0–100 integrity index.
+
+### Current formula (v6)
+
+```
+Score = 100 − (H × 12) − (E × 5) − (M × 2)    [floor: 0]
+```
+
+A fully-clean reference list of any length scores 100. Defensible references incur no penalty. Each flagged finding reduces the score:
+
+| Tier | Weight | Rationale |
+|---|---|---|
+| High (H) | −12 | Strong evidence of fabrication or deliberate manipulation |
+| Elevated (E) | −5 | Serious anomaly requiring manual verification |
+| Moderate (M) | −2 | Minor or inconclusive concern |
+| Defensible (D) | 0 | Verified clean; no deduction |
+
+### Risk bands
+
+| Score range | Gauge color | Editorial meaning |
+|---|---|---|
+| 90–100 | Green | Low concern — at most minor flags; review individual tier assignments |
+| 70–89 | Amber | Review recommended — one or more significant findings |
+| 50–69 | Orange | Escalate — pattern of anomalies; initiate COPE-aligned investigation |
+| 0–49 | Red | Systemic concern — heavily flagged list; full editorial investigation required |
+
+### % Defensible as a complementary signal
+
+The % Defensible (Defensible count ÷ total references, displayed in the Executive Dashboard) is often the most intuitive integrity indicator for large reference lists (20+ references). A list can score in the amber band while having 90% Defensible references if a small number of entries have significant flags. Consult both the score and % Defensible together.
+
+### Version history of the formula
+
+| Formula version | Formula | Notes |
+|---|---|---|
+| v3 | `100 − (H × 12) − (E × 5) − (M × 2) − (D × 3)` (approximate) | D × 3 base cost introduced |
+| v4–v5 | `100 − (H × 12) − (E × 5) − (M × 2) − (D × 3)` | A clean 30-reference article scores 10; a clean 26-reference article scores 22 |
+| **v6** | **`100 − (H × 12) − (E × 5) − (M × 2)`** | **D × 3 removed; a clean list of any length scores 100. v6 scores are not directly comparable to v4/v5 baselines.** |
+
+The D × 3 term was removed in v6 because it made the headline score misleading for large reference lists: a perfectly clean 30-reference article scored only 10 under v5, far below the escalation threshold, creating a false alarm. The v6 formula preserves the aggressive per-finding deductions while allowing clean lists to correctly score at their maximum.
+
+---
+
 ## Version History
 
 | Version | Changes |
@@ -247,3 +327,4 @@ COPE procedures distinguish three escalation levels, which the auditor's recomme
 | **v3** | Added author-shifting, Double-Real trap detection, journal mutation. Refined scoring formula. Added grey-literature handling. |
 | **v4** | Added sneaked-reference detection (Heuristic 8, Mode B only). Added Mode A/B input detection stage. Added Cochrane Library and government sources to verification set. Added COPE alignment note for H-tier findings. |
 | **v5** | Added temporal impossibility detection (Heuristic 9): pre-existence dating, post-submission dating, and impossible volume/issue checks. Added NLM Catalog to verification sources. Expanded COPE alignment from a single note to a full structured mapping across five flowcharts and three escalation levels. |
+| **v6** | Added journal legitimacy and predatory-venue flagging (Heuristic 10): hybrid whitelist-plus-community-list approach using DOAJ, PubMed, Scopus, and Web of Science as positive signals, corroborated by beallslist.net and Stop Predatory Journals. Added DOAJ and community lists to verification sources. **Scoring formula change:** removed the D × 3 base cost; new formula is `Score = 100 − (H × 12) − (E × 5) − (M × 2)`, floored at 0. A fully clean reference list of any length now scores 100. Added H10 row to COPE alignment table. **v6 scores are not directly comparable to v4 or v5 baselines due to the formula change.** |
